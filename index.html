@@ -1,0 +1,92 @@
+<!doctype html><html><head>
+  <meta charset=utf8>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <title>euros per hora</title>
+  <style>
+    body{
+      font-family:calibri;
+    }
+    table{
+      border-collapse:collapse;
+    }
+    input[type=number]{
+      text-align:right;
+    }
+    .numero{
+      font-family:monospace;
+      text-align:right;
+    }
+    [euros_per_hora]{
+      background:#af0;
+      font-size:larger;
+    }
+  </style>
+</head><body><h1>euros per hora</h1>
+
+<div id=app>
+
+<div style="margin-bottom:10px">
+  <button @click="afegeir_servei()">afegir servei</button>
+</div>
+
+<table border=1>
+  <tr>
+    <th>Servei</th>
+    <th>€/mes</th>
+    <th>€/hora</th>
+  </tr>
+  <tr v-for="s,i in serveis">
+    <td><input type=text v-model="s.nom" placeholder="netflix"></td>
+    <td><input type=number v-model="s.cost_mensual" step="0.01"></td>
+    <td class=numero>{{s.cost_per_hora.toFixed(4)}}</td>
+    <td><button @click="serveis.splice(i,1)">esborrar servei</button></td>
+  </tr>
+  <tr>
+    <th>Total
+    <th class=numero>{{cost_per_mes_total.toFixed(2)}}</th>
+    <th class=numero euros_per_hora>{{cost_per_hora_total.toFixed(4)}}</th>
+  </tr>
+</table>
+
+</div id=app>
+
+<script>
+  class Servei{
+    constructor(nom,cost_mensual){
+      this.nom          = nom;
+      this.cost_mensual = cost_mensual;
+    }
+    get cost_per_hora(){
+      const hores = 365/12*24; //hores en un mes
+      let cm = this.cost_mensual||0;
+      return cm/hores;
+    }
+  }
+
+  let app=Vue.createApp({
+    data(){return{
+      serveis:[],
+    }},
+    methods:{
+      afegeir_servei(nom,cost){
+        nom=nom||"";
+        cost=cost||0;
+        this.serveis.push(new Servei(nom,cost));
+      },
+    },
+    computed:{
+      cost_per_mes_total(){
+        return this.serveis.map(s=>s.cost_mensual).filter(c=>!isNaN(c)).reduce((p,c)=>p+c,0);
+      },
+      cost_per_hora_total(){
+        return this.serveis.map(s=>s.cost_per_hora).filter(c=>!isNaN(c)).reduce((p,c)=>p+c,0);
+      },
+    },
+  }).mount("#app");
+
+  //afegeix exemples
+  app.afegeir_servei("internet",40);
+  app.afegeir_servei("telèfon", 20);
+  app.afegeir_servei("netflix",  7);
+  app.afegeir_servei("disney+",  2);
+</script>
